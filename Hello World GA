@@ -1,0 +1,64 @@
+##Created by Matthew Hazard 2016
+
+import sys
+import random
+import string
+
+
+MUTATION_RATE = 0.01
+NUMBER_OF_PARENTS = 2
+NUMBER_OF_OFFSPRING = 50
+TARGET_STRING = "Hello. My name is Inigo Montoya. You killed my father. Prepare to die."
+
+
+def eval(str):
+    dif = 0
+    for char_a, char_b in zip(str, TARGET_STRING):
+        dif += abs(ord(char_b) - ord(char_a))
+    return dif
+
+def create_offspring(parents, fitness):
+
+    offspring = []
+    for i in range(len(parents[0])):
+        x = random.randint(0,999)
+        offspring.append(parents[x%len(parents)][i])
+    changes = int(MUTATION_RATE * len(TARGET_STRING))
+    if changes < 1:
+        changes = 1
+    for i in range(0, changes):
+        place = random.randint(0, len(TARGET_STRING)-1)
+        offspring[place] = random.choice(string.printable)
+    return ''.join(offspring)
+
+def main():
+    parents = [[] for i in range(NUMBER_OF_PARENTS)]
+    for i in range(len(TARGET_STRING)):
+        for j in range(NUMBER_OF_PARENTS):
+            new_char = random.choice(string.printable)
+            parents[j].append(new_char)
+    fitness = 99999
+    i = 0
+    offspring = ""
+    while fitness != 0 and i < 99999:
+        i += 1
+        fitness = eval(parents[0])
+        if offspring != parents[0]:
+            print("Generation: %s || %s || Fitness: %s"%(i, "".join(offspring), fitness))
+            offspring = parents[0]
+        offspring_list = []
+        for k in range(NUMBER_OF_OFFSPRING):
+            new_offspring = create_offspring(parents, fitness)
+            fit = eval(new_offspring)
+            offspring_list.append((new_offspring, fit))
+        sorted_offspring = sorted(offspring_list, key=lambda tup: tup[1])
+        if eval(parents[0]) > sorted_offspring[0][1]:
+            parents[0] = sorted_offspring[0][0]
+        for k in range(1, NUMBER_OF_PARENTS):
+            parents[k] = sorted_offspring[k][0]
+    print("Generation: %s || %s || Fitness: %s"%(i, "".join(parents[0]), fitness))
+
+
+
+if __name__ == '__main__':
+    main()
